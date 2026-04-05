@@ -1,10 +1,10 @@
 # ============================================================
-#  XELERO // THE OMNIBUS ULTIMATE: BLACK EDITION (v41.0)
-#  "FOR THE SAKE OF THE FRAMES" - UNIVERSAL STABLE VERSION
-#  OPTIMIZED FOR INTEL LAPTOPS & THE 2026 GAMING LANDSCAPE
+#  XELERO // THE OMNIBUS ULTIMATE: BLACK EDITION (v42.0)
+#  "FOR THE SAKE OF THE FRAMES" — OMNIBUS FINAL
+#  BUILT FOR: CLUTCHING, GRINDING, & ZERO DELAY
 # ============================================================
 
-$Host.UI.RawUI.WindowTitle = "XELERO // OMNIBUS v41.0 - UNIVERSAL STABLE"
+$Host.UI.RawUI.WindowTitle = "XELERO // OMNIBUS v42.0 - OMNIBUS FINAL"
 $ErrorActionPreference = "SilentlyContinue"
 
 # -- ADMIN CHECK --
@@ -42,7 +42,6 @@ function Show-Header {
     Clear-Host
     $C = "Cyan"; $G = "DarkGray"; $W = "White"; $M = "Magenta"; $R = "Red"; $Y = "Yellow"
     
-    # Universal Mode Detection
     if ($isLaptop) { $mode = "PORTABLE_TURBO" } else { $mode = "STATION_MAX" }
 
     Write-Host "  $($env:COMPUTERNAME) @ XELERO-OS " -ForegroundColor $G
@@ -89,11 +88,9 @@ function Apply-Graphics {
 
 function Apply-Power {
     Write-Host " [>] Injecting Ultimate Power & Intel Turbo Lock..." -ForegroundColor Cyan
-    # Failsafe: Unlock Ultimate Performance scheme
     powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 | Out-Null
     $p = (powercfg /list | Select-String "Ultimate" | ForEach-Object { ($_ -split "\s+")[3] })
     powercfg /setactive $p
-    # Disable Processor Core Parking/Idle
     powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR 5d760414-0358-471f-a0b2-7287740b9984 1
     if ($isIntel) {
         powercfg -attributes SUB_PROCESSOR be337238-0d82-4146-a960-4f3749d470c7 -ATTRIB_HIDE
@@ -112,8 +109,8 @@ Run-Scanner
 while ($true) {
     Show-Header
     Write-Host "  [ CORE PERFORMANCE ]            [ GRAPHICS & DISPLAY ]" -ForegroundColor Cyan
-    Write-Host "  [1] FPS HARD-CAP (ZERO TEAR)    [6] GPU MSI-MODE (HIGH SPEED)"
-    Write-Host "  [2] KERNEL RESPONSIVENESS       [7] DISABLE MPO (FIX FLICKER)"
+    Write-Host "  [1] FPS HARD-CAP (SMOOTH)       [6] GPU MSI-MODE (HIGH SPEED)"
+    Write-Host "  [2] RAW INPUT OVERCLOCK         [7] DISABLE MPO (FIX FLICKER)"
     Write-Host "  [3] TANK SYSTEM SOUNDS          [8] DISABLE FSE / GAME DVR"
     Write-Host ""
     Write-Host "  [ SYSTEM CLEANUP ]              [ NETWORKING & LATENCY ]" -ForegroundColor Green
@@ -144,23 +141,42 @@ while ($true) {
         }
         "5" { Remove-Item "$env:TEMP\*" -Recurse -Force; ipconfig /flushdns }
         "6" { Apply-Graphics }
-        "7" { 
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Value 5 
-            Write-Host " [OK] MPO Disabled Successfully." -ForegroundColor Green
-        }
+        "7" { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Value 5; Write-Host " [OK] MPO Disabled." -ForegroundColor Green }
         "8" { Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Value 2 }
         "9" {
             Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" | ForEach-Object {
                 Save-Original -Path $_.PSPath -Name "TcpAckFrequency" -Module "Network"
                 Set-ItemProperty -Path $_.PSPath -Name "TcpAckFrequency" -Value 1
             }
+            Write-Host " [OK] Network Priorities Set." -ForegroundColor Green
         }
         "10" {
             Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" | ForEach-Object {
                 Set-ItemProperty -Path $_.PSPath -Name "TCPNoDelay" -Value 1
             }
         }
-        "11" { [System.GC]::Collect(); Write-Host " [OK] Memory Cache Cleared." -ForegroundColor Green }
+        "11" { 
+            Write-Host " [>] Performing Surgical RAM Purge..." -ForegroundColor Yellow
+            $code = @"
+            using System;
+            using System.Diagnostics;
+            using System.Runtime.InteropServices;
+            public class RAM {
+                [DllImport("kernel32.dll")]
+                public static extern bool SetProcessWorkingSetSize(IntPtr proc, int min, int max);
+                public static void Purge() {
+                    foreach (Process p in Process.GetProcesses()) {
+                        try { SetProcessWorkingSetSize(p.Handle, -1, -1); } catch { }
+                    }
+                }
+            }
+"@
+            Add-Type -TypeDefinition $code
+            [RAM]::Purge()
+            [System.GC]::Collect()
+            [System.GC]::WaitForPendingFinalizers()
+            Write-Host " [OK] RAM Working Sets Flushed." -ForegroundColor Green
+        }
         "12" {
             $games = @("cs2.exe","VALORANT-Win64-Shipping.exe","cod.exe","r5apex.exe","RobloxPlayerBeta.exe","chrome.exe","Marathon.exe","javaw.exe","Minecraft.Windows.exe")
             foreach ($g in $games) {
@@ -169,17 +185,16 @@ while ($true) {
                 Set-ItemProperty -Path $p -Name "CpuPriorityClass" -Value 3
                 Set-ItemProperty -Path $p -Name "IoPriorityClass" -Value 3
             }
-            Write-Host " [OK] Game Threads Set to High." -ForegroundColor Green
+            Write-Host " [OK] Gaming Threading Synchronized." -ForegroundColor Green
         }
         "D" { Start-Process "https://discordapp.com/users/848750246124191744" }
         "X" { 
             Apply-Core; Apply-Graphics; 
-            # SAFE HID Standard
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Value 24
             $hid = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\hidserv.exe\PerfOptions"
             if (!(Test-Path $hid)) { New-Item $hid -Force }; Set-ItemProperty -Path $hid -Name "CpuPriorityClass" -Value 3
             Apply-Power 
-            Write-Host " [!] OMNIBUS XELERATION COMPLETE. REBOOT YOUR PC." -ForegroundColor Magenta; pause
+            Write-Host " [!] OMNIBUS XELERATION COMPLETE. REBOOT RECOMMENDED." -ForegroundColor Magenta; pause
         }
         "Q" { exit }
         "U1" {
@@ -187,16 +202,16 @@ while ($true) {
                 $v = (Get-ItemProperty -Path "$BackupPath\Network" -Name "TcpAckFrequency" -EA SilentlyContinue).TcpAckFrequency
                 if($v){Set-ItemProperty -Path $_.PSPath -Name "TcpAckFrequency" -Value $v}
             }
-            Write-Host " [!] Reverting Network to Factory..." -ForegroundColor Red
+            Write-Host " [!] Network Reverted to Factory." -ForegroundColor Red
         }
         "U2" {
-            $v = (Get-ItemProperty -Path "$BackupPath\Kernel" -Name "Win32PrioritySeparation").Win32PrioritySeparation
+            $v = (Get-ItemProperty -Path "$BackupPath\Kernel" -Name "Win32PrioritySeparation" -EA SilentlyContinue).Win32PrioritySeparation
             if($v){Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Value $v}
-            Write-Host " [!] Reverting Kernel to Factory..." -ForegroundColor Red
+            Write-Host " [!] Kernel Reverted to Factory." -ForegroundColor Red
         }
         "U3" {
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Value 0
-            Write-Host " [!] MPO Re-Enabled. Flicker Fix Reverted." -ForegroundColor Red
+            Write-Host " [!] MPO Re-Enabled." -ForegroundColor Red
         }
     }
     Start-Sleep -Seconds 1
