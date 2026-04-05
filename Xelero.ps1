@@ -1,10 +1,10 @@
 # ============================================================
-#  XELERO // THE OMNIBUS ULTIMATE: BLACK EDITION (v40.0)
-#  "FOR THE SAKE OF THE FRAMES" - ABSOLUTE FINAL VERSION
+#  XELERO // THE OMNIBUS ULTIMATE: BLACK EDITION (v41.0)
+#  "FOR THE SAKE OF THE FRAMES" - UNIVERSAL STABLE VERSION
 #  OPTIMIZED FOR INTEL LAPTOPS & THE 2026 GAMING LANDSCAPE
 # ============================================================
 
-$Host.UI.RawUI.WindowTitle = "XELERO // OMNIBUS v40.0 - THE FINAL STABLE"
+$Host.UI.RawUI.WindowTitle = "XELERO // OMNIBUS v41.0 - UNIVERSAL STABLE"
 $ErrorActionPreference = "SilentlyContinue"
 
 # -- ADMIN CHECK --
@@ -37,10 +37,14 @@ function Run-Scanner {
     $Global:isIntel = $cpu -match "Intel"
 }
 
-# -- UI STYLING --
+# -- UI STYLING (Universal PS 5.1 Version) --
 function Show-Header {
     Clear-Host
     $C = "Cyan"; $G = "DarkGray"; $W = "White"; $M = "Magenta"; $R = "Red"; $Y = "Yellow"
+    
+    # Universal Mode Detection
+    if ($isLaptop) { $mode = "PORTABLE_TURBO" } else { $mode = "STATION_MAX" }
+
     Write-Host "  $($env:COMPUTERNAME) @ XELERO-OS " -ForegroundColor $G
     Write-Host " ┌────────────────────────────────────────────────────────────────────┐" -ForegroundColor $G
     Write-Host " │  ██╗  ██╗███████╗██╗      ███████╗██████╗  ██████╗                 │" -ForegroundColor $C
@@ -50,7 +54,7 @@ function Show-Header {
     Write-Host " │  ██╔╝ ██╗███████╗███████╗███████╗██║  ██║╚██████╔╝                 │" -ForegroundColor $C
     Write-Host " ├────────────────────────────────────────────────────────────────────┤" -ForegroundColor $G
     Write-Host " │  CPU: $cpu" -ForegroundColor $W
-    Write-Host " │  GPU: $gpu | TARGET: $($isLaptop ? "PORTABLE_TURBO" : "STATION_MAX")" -ForegroundColor $G
+    Write-Host " │  GPU: $gpu | MODE: $mode" -ForegroundColor $G
     Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor $G
 }
 
@@ -66,7 +70,7 @@ function Apply-Core {
     bcdedit /set disabledynamictick yes
     bcdedit /set useplatformtick yes
     bcdedit /set {current} bootux disabled
-    Write-Host " [OK] Kernel Optimized for Smooth Frames." -ForegroundColor Green
+    Write-Host " [OK] Kernel Optimized for Zero-Delay." -ForegroundColor Green
 }
 
 function Apply-Graphics {
@@ -75,21 +79,21 @@ function Apply-Graphics {
     $gpuPath = "HKLM:\SYSTEM\CurrentControlSet\Enum\$gpuID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
     if (!(Test-Path $gpuPath)) { New-Item $gpuPath -Force }
     Set-ItemProperty -Path $gpuPath -Name "MSISupported" -Value 1
-    # Disable MPO (Fixes Stutter/Flicker)
+    # Disable MPO (Fixes Laptop Flickering)
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Value 5
-    # Zero-Tear independent flip
+    # Force Independent Flip (Smoothness Key)
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "ForceDirectFlip" -Value 1
     Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Value 2
-    Write-Host " [OK] GPU Pipeline is Zero-Delay." -ForegroundColor Green
+    Write-Host " [OK] GPU Pipeline is Snappy." -ForegroundColor Green
 }
 
 function Apply-Power {
     Write-Host " [>] Injecting Ultimate Power & Intel Turbo Lock..." -ForegroundColor Cyan
-    # Failsafe: Unlock Ultimate Performance plan
+    # Failsafe: Unlock Ultimate Performance scheme
     powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 | Out-Null
     $p = (powercfg /list | Select-String "Ultimate" | ForEach-Object { ($_ -split "\s+")[3] })
     powercfg /setactive $p
-    # Disable Laptop Throttle/Idle
+    # Disable Processor Core Parking/Idle
     powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR 5d760414-0358-471f-a0b2-7287740b9984 1
     if ($isIntel) {
         powercfg -attributes SUB_PROCESSOR be337238-0d82-4146-a960-4f3749d470c7 -ATTRIB_HIDE
@@ -97,7 +101,7 @@ function Apply-Power {
     }
     powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR CPMINCORES 100
     powercfg /setactive SCHEME_CURRENT
-    Write-Host " [OK] Power Injection Complete." -ForegroundColor Green
+    Write-Host " [OK] Power Delivery Locked." -ForegroundColor Green
 }
 
 # ============================================================
@@ -132,17 +136,17 @@ while ($true) {
     switch ($cmd) {
         "1" { $hz = Read-Host "  Target FPS"; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\DirectX" -Name "MaxFrameRate" -Value $hz }
         "2" { Apply-Core }
-        "3" { reg add "HKCU\AppEvents\Schemes" /ve /t REG_SZ /d ".None" /f; Write-Host " [!] Sounds Tanked." -ForegroundColor Red }
+        "3" { reg add "HKCU\AppEvents\Schemes" /ve /t REG_SZ /d ".None" /f; Write-Host " [!] System Audio Muted." -ForegroundColor Red }
         "4" { 
             $svcs = @("DiagTrack","SysMain","WSearch","dmwappushservice","MapsBroker")
             foreach($s in $svcs){Set-Service $s -StartupType Disabled; Stop-Service $s -Force}
-            Write-Host " [!] Bloatware Nuked." -ForegroundColor Red
+            Write-Host " [!] Windows Bloat Nuked." -ForegroundColor Red
         }
         "5" { Remove-Item "$env:TEMP\*" -Recurse -Force; ipconfig /flushdns }
         "6" { Apply-Graphics }
         "7" { 
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Value 5 
-            Write-Host " [OK] MPO Disabled. Flicker Fix Active." -ForegroundColor Green
+            Write-Host " [OK] MPO Disabled Successfully." -ForegroundColor Green
         }
         "8" { Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Value 2 }
         "9" {
@@ -156,7 +160,7 @@ while ($true) {
                 Set-ItemProperty -Path $_.PSPath -Name "TCPNoDelay" -Value 1
             }
         }
-        "11" { [System.GC]::Collect(); Write-Host " [OK] Stutter Purged." -ForegroundColor Green }
+        "11" { [System.GC]::Collect(); Write-Host " [OK] Memory Cache Cleared." -ForegroundColor Green }
         "12" {
             $games = @("cs2.exe","VALORANT-Win64-Shipping.exe","cod.exe","r5apex.exe","RobloxPlayerBeta.exe","chrome.exe","Marathon.exe","javaw.exe","Minecraft.Windows.exe")
             foreach ($g in $games) {
@@ -165,17 +169,17 @@ while ($true) {
                 Set-ItemProperty -Path $p -Name "CpuPriorityClass" -Value 3
                 Set-ItemProperty -Path $p -Name "IoPriorityClass" -Value 3
             }
-            Write-Host " [OK] The Titans are Prioritized." -ForegroundColor Green
+            Write-Host " [OK] Game Threads Set to High." -ForegroundColor Green
         }
         "D" { Start-Process "https://discordapp.com/users/848750246124191744" }
         "X" { 
             Apply-Core; Apply-Graphics; 
-            # Safe HID Optimization
+            # SAFE HID Standard
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Value 24
             $hid = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\hidserv.exe\PerfOptions"
             if (!(Test-Path $hid)) { New-Item $hid -Force }; Set-ItemProperty -Path $hid -Name "CpuPriorityClass" -Value 3
             Apply-Power 
-            Write-Host " [!] ABSOLUTE XELERATION COMPLETE. REBOOT FOR EFFECT." -ForegroundColor Magenta; pause
+            Write-Host " [!] OMNIBUS XELERATION COMPLETE. REBOOT YOUR PC." -ForegroundColor Magenta; pause
         }
         "Q" { exit }
         "U1" {
